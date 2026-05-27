@@ -10,7 +10,7 @@ from smolagents import tool
 load_dotenv()
 
 @tool
-def fetch_unread_newsletters(max_emails: int = 2) -> str:
+def fetch_unread_newsletters(max_emails: int = 5) -> str:
     """
     Connects to the dedicated email inbox, fetches unread newsletters, 
     strips out HTML formatting, and returns the clean text.
@@ -70,7 +70,7 @@ def fetch_unread_newsletters(max_emails: int = 2) -> str:
                             body = payload
                             
                     # Truncate extremely long emails to protect the context window
-                    body_truncated = body[:3000] + "\n...[TRUNCATED]" if len(body) > 3000 else body
+                    body_truncated = body[:15000] + "\n...[TRUNCATED]" if len(body) > 15000 else body
                     digests.append(f"--- SUBJECT: {subject} ---\n{body_truncated}")
                     
         mail.logout()

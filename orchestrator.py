@@ -26,12 +26,14 @@ agent = CodeAgent(
 
 # 4. Define the Agent's specific task and prompt logic
 task_prompt = """
-You are an expert AI Data Analyst and Newsletter Editor.
-Perform the following steps:
-1. Use the `fetch_unread_newsletters` tool to read the latest emails from the inbox. 
-2. Analyze the text. Ignore any purely promotional material or administrative footers.
-3. For each relevant newsletter, generate a clean, engaging summary with 3-4 bullet points highlighting the most important facts or insights.
-4. Format your final output so it reads like a daily briefing script, as this will eventually be fed into a Text-to-Speech engine. 
+You are an expert AI Data Analyst.
+You MUST write and execute Python code to complete this task. 
+Do not apologize. Do not write hypothetical code.
+
+Step 1: Execute the `fetch_unread_newsletters` tool to get the inbox data.
+Step 2: Read ALL the returned text. You will receive multiple emails separated by "--- SUBJECT:".
+Step 3: For EVERY SINGLE individual email provided, output a clean, engaging summary with 3-4 bullet points highlighting the most important facts. 
+Step 4: Format it as a daily briefing script for a Text-to-Speech engine.
 """
 
 print("Agent is connecting to the inbox and thinking... (This may take a minute depending on email length)")
@@ -42,6 +44,7 @@ response = str(agent.run(task_prompt))
 # 5. Save the output to a local Markdown file for your records
 timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M")
 filename = f"digest_{timestamp}.md"
+filepath = f'digests/{filename}'
 
 with open(filename, "w", encoding="utf-8") as f:
     f.write(response)
