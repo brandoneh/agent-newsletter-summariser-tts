@@ -2,8 +2,7 @@
 
 I am a data scientist with strong Python skills but 
 limited experience with LLMs and AI agents. I am building agents 
-on my local machine as a learning exercise, currently using 
-SmolAgents as recommended by Gemini. I want to deeply understand what I'm building, not just 
+on my local machine as a learning exercise. I want to deeply understand what I'm building, not just 
 get it working.
 
 # Teaching Approach
@@ -59,9 +58,61 @@ something real and useful, not shipping a production system.
 - CPU: Ryzen 7 5800X3D
 - OS: Windows
 - Running models locally via Ollama
-- Current models I'm using: [e.g. llama3.2:3b, qwen2.5-coder:7b]
+- Current models I'm using: qwen2.5-coder:7b
 
 ## Home server
 - GPU: None
 - CPU: i5-7400
 - RAM: 16GB
+
+## MacBook (development / Claude Code)
+- No local GPU for Ollama
+- Used for editing, Claude Code sessions, and pushing to git
+- Connects to the Windows PC's Ollama instance via network if needed
+
+# Current Implementation State
+
+## What's built
+
+- `email_tool.py` — connects to Gmail via IMAP, fetches unread emails,
+  strips HTML with BeautifulSoup, and truncates at 15,000 chars to protect the context window
+- `summarise.py` — direct Ollama API calls (no agent framework) that returns
+  structured JSON using `newsletter_system_prompt.md`; this is the active approach
+- `orchestrator.py` — early experiment using SmolAgents CodeAgent; **now considered abandoned**,
+  the decision was made to handle model request routing directly instead
+- `newsletter_system_prompt.md` — system prompt for the summarisation task
+- `example_json_response_format.json` — target output schema for structured summaries
+
+## Backend switching
+
+`summarise.py` supports two backends via environment variables:
+- **Local (Ollama):** no `GEMINI_API_KEY` in `.env` → routes to `http://localhost:11434`
+- **Remote (Gemini):** set `GEMINI_API_KEY` and `MODEL=gemini-2.5-flash` → routes to Gemini's OpenAI-compatible endpoint
+
+This allows development on the MacBook (no local GPU) using Gemini free tier credits.
+
+## What's still TODO
+
+- TTS / mp3 generation (the "-tts" in the repo name — not yet started)
+- `main.py` is a placeholder only
+- No scheduling or automation yet (currently run manually)
+
+## Cross-machine workflow
+
+This file is the source of truth for project state across machines (Main PC and MacBook).
+Do not suggest syncing the Claude Code memory system — CLAUDE.md is intentionally used instead.
+Ask to update this file at the end of any session where something meaningful changes.
+
+## Architecture direction
+
+Handling model routing and orchestration manually (direct Ollama API calls) rather than
+delegating to an agent framework like SmolAgents. This gives more transparency into what's
+happening and aligns with the learning goals.
+
+# Last updated
+
+<!-- Format: date | machine | 2-sentence summary of what changed -->
+
+- 2026-06-05 | MacBook — Added Current Implementation State section, hardware entry for MacBook, and this log. Removed stale SmolAgents reference from Context; SmolAgents abandoned in favour of direct Ollama API calls.
+- 2026-06-05 | MacBook — Added Cross-machine workflow section documenting the decision to use CLAUDE.md as the memory source of truth instead of syncing Claude Code's memory system.
+- 2026-06-05 | MacBook — Added Gemini free tier fallback to summarise.py; backend now switches automatically based on presence of GEMINI_API_KEY in .env. Tested and working.

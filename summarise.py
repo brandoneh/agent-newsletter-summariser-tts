@@ -1,12 +1,15 @@
+import os
 import json
 import re
 import requests
+from dotenv import load_dotenv
 from datetime import datetime
 from pathlib import Path
 
 
+load_dotenv()
 OLLAMA_URL = "http://localhost:11434/v1/chat/completions"
-MODEL = "qwen2.5-coder:7b"
+GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
 
 
 def load_system_prompt() -> str:
@@ -14,11 +17,11 @@ def load_system_prompt() -> str:
     return path.read_text(encoding="utf-8")
 
 
-def summarise(email_text: str) -> dict:
+def summarise(email_text: str, url: str, model: str, api_token: str = None) -> dict:
     system_prompt = load_system_prompt()
 
     payload = {
-        "model": MODEL,
+        "model": model,
         "messages": [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": email_text},
@@ -28,7 +31,8 @@ def summarise(email_text: str) -> dict:
         "temperature": 0.3,
     }
 
-    response = requests.post(OLLAMA_URL, json=payload)
+    headers = {"Authorization": f"Bearer {api_token}"} if api_token else {}
+    response = requests.post(url, json=payload, headers=headers)
     response.raise_for_status()
 
     # The model's reply is nested inside choices[0].message.content
@@ -48,6 +52,12 @@ def summarise(email_text: str) -> dict:
 
 
 if __name__ == "__main__":
+
+    model = os.getenv('MODEL')
+
+    api_token = os.getenv("GEMINI_API_KEY")
+    url = GEMINI_URL if api_token else OLLAMA_URL
+
     # Hardcoded test input — lets us iterate on prompt quality without running the full pipeline
     test_email = """
     Subject: The Batch - Issue 247
@@ -69,5 +79,5 @@ if __name__ == "__main__":
     significantly simplifies the retrieval chain API and is worth upgrading to.
     """
 
-    result = summarise(test_email)
+    result = summarise(test_email, url, model, api_token)
     print(json.dumps(result, indent=2))
