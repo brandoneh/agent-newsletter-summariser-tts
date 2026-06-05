@@ -55,14 +55,14 @@ def fetch_unread_newsletters(max_emails: int = 5) -> str:
                         for part in msg.walk():
                             content_type = part.get_content_type()
                             if content_type == "text/html":
-                                html_content = part.get_payload(decode=True).decode(errors='ignore')
+                                html_content = part.get_payload(decode=True).decode(errors="ignore")
                                 soup = BeautifulSoup(html_content, "lxml")
                                 body = soup.get_text(separator="\n", strip=True)
                                 break
                             elif content_type == "text/plain":
-                                body = part.get_payload(decode=True).decode(errors='ignore')
+                                body = part.get_payload(decode=True).decode(errors="ignore")
                     else:
-                        payload = msg.get_payload(decode=True).decode(errors='ignore')
+                        payload = msg.get_payload(decode=True).decode(errors="ignore")
                         if msg.get_content_type() == "text/html":
                             soup = BeautifulSoup(payload, "lxml")
                             body = soup.get_text(separator="\n", strip=True)

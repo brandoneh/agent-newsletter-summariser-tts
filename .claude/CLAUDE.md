@@ -27,6 +27,7 @@ Key topics I'm working through:
 
 # Preferences
 
+- Use double quotes for all Python strings
 - Favour explanations over solutions — I want to understand, 
   not just copy
 - When there are multiple valid approaches (e.g. fine-tuning vs RAG), 
@@ -88,6 +89,7 @@ something real and useful, not shipping a production system.
 `summarise.py` supports two backends via environment variables:
 - **Local (Ollama):** no `GEMINI_API_KEY` in `.env` → routes to `http://localhost:11434`
 - **Remote (Gemini):** set `GEMINI_API_KEY` and `MODEL=gemini-2.5-flash` → routes to Gemini's OpenAI-compatible endpoint
+- Backend is selected automatically — no `MACHINE` variable needed
 
 This allows development on the MacBook (no local GPU) using Gemini free tier credits.
 
@@ -116,3 +118,4 @@ happening and aligns with the learning goals.
 - 2026-06-05 | MacBook — Added Current Implementation State section, hardware entry for MacBook, and this log. Removed stale SmolAgents reference from Context; SmolAgents abandoned in favour of direct Ollama API calls.
 - 2026-06-05 | MacBook — Added Cross-machine workflow section documenting the decision to use CLAUDE.md as the memory source of truth instead of syncing Claude Code's memory system.
 - 2026-06-05 | MacBook — Added Gemini free tier fallback to summarise.py; backend now switches automatically based on presence of GEMINI_API_KEY in .env. Tested and working.
+- 2026-06-05 | MacBook — Simplified backend switching (dropped MACHINE variable); standardised all Python strings to double quotes.

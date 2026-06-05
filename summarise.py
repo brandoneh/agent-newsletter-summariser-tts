@@ -53,7 +53,7 @@ def summarise(email_text: str, url: str, model: str, api_token: str = None) -> d
 
 if __name__ == "__main__":
 
-    model = os.getenv('MODEL')
+    model = os.getenv("MODEL")
 
     api_token = os.getenv("GEMINI_API_KEY")
     url = GEMINI_URL if api_token else OLLAMA_URL
