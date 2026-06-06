@@ -40,7 +40,7 @@ Key topics I'm working through:
 Building a newsletter summarisation agent as a learning exercise. 
 The agent will ingest newsletters from a gmail account and produce structured summaries
 as well as mp3 files I can listen to on my phone.
-Implementation is via Ollama (local LLMs).
+Summarisation uses Gemini 2.5 Flash via API; TTS uses edge-tts (local, free).
 
 The primary goal is learning agent architecture through building 
 something real and useful, not shipping a production system.
@@ -77,8 +77,9 @@ something real and useful, not shipping a production system.
 
 - `email_tool.py` — connects to Gmail via IMAP, fetches unread emails,
   strips HTML with BeautifulSoup, and truncates at 15,000 chars to protect the context window
-- `summarise.py` — direct Ollama API calls (no agent framework) that returns
-  structured JSON using `newsletter_system_prompt.md`; this is the active approach
+- `summarise.py` — makes direct API calls (no agent framework) returning structured JSON
+  using `newsletter_system_prompt.md`; routes to Gemini or Ollama based on env vars
+- `tts.py` — takes a text string and generates an MP3 using `edge-tts`; outputs to `tts_output/`
 - `orchestrator.py` — early experiment using SmolAgents CodeAgent; **now considered abandoned**,
   the decision was made to handle model request routing directly instead
 - `newsletter_system_prompt.md` — system prompt for the summarisation task
@@ -91,13 +92,28 @@ something real and useful, not shipping a production system.
 - **Remote (Gemini):** set `GEMINI_API_KEY` and `MODEL=gemini-2.5-flash` → routes to Gemini's OpenAI-compatible endpoint
 - Backend is selected automatically — no `MACHINE` variable needed
 
+**Required `.env` variables for Gemini backend:**
+```
+GEMINI_API_KEY=<your key>
+MODEL=gemini-2.5-flash
+```
+
+`gemini-2.0-flash` and older models have a free tier quota of 0 — only `gemini-2.5-flash` and
+`gemini-2.5-flash-lite` are confirmed free as of 2026-06-06.
+
 This allows development on the MacBook (no local GPU) using Gemini free tier credits.
 
 ## What's still TODO
 
-- TTS / mp3 generation (the "-tts" in the repo name — not yet started)
-- `main.py` is a placeholder only
+- Wire `email_tool.py` into `summarise.py` to process real emails
+- Wire `summarise.py` output (`tts_script` field) into `tts.py` to generate audio
+- `main.py` is a placeholder only — needs to become the pipeline entry point
 - No scheduling or automation yet (currently run manually)
+
+## Known issues / future work
+
+### Truncated newsletters
+Many newsletters truncate body text in the email and require clicking a "read online" link to view the full content. `email_tool.py` will only capture the truncated version. A future web scraping step will be needed to follow the URL and fetch the full article before passing to the summariser.
 
 ## Cross-machine workflow
 
@@ -107,9 +123,10 @@ Ask to update this file at the end of any session where something meaningful cha
 
 ## Architecture direction
 
-Handling model routing and orchestration manually (direct Ollama API calls) rather than
-delegating to an agent framework like SmolAgents. This gives more transparency into what's
-happening and aligns with the learning goals.
+Handling model routing and orchestration manually (direct API calls) rather than delegating to
+an agent framework like SmolAgents. This gives more transparency into what's happening and aligns
+with the learning goals. SmolAgents was tried and abandoned — the CodeAgent pattern burned context
+on meta-reasoning rather than summarisation, producing poor output with 7B models.
 
 # Last updated
 
@@ -119,3 +136,5 @@ happening and aligns with the learning goals.
 - 2026-06-05 | MacBook — Added Cross-machine workflow section documenting the decision to use CLAUDE.md as the memory source of truth instead of syncing Claude Code's memory system.
 - 2026-06-05 | MacBook — Added Gemini free tier fallback to summarise.py; backend now switches automatically based on presence of GEMINI_API_KEY in .env. Tested and working.
 - 2026-06-05 | MacBook — Simplified backend switching (dropped MACHINE variable); standardised all Python strings to double quotes.
+- 2026-06-06 | Main PC — Confirmed gemini-2.5-flash produces quality output (differentiated summary and tts_script). Added TODO for TTS stage (edge-tts) and documented truncated newsletter issue.
+- 2026-06-06 | Main PC — Built tts.py using edge-tts; working and producing MP3 output. Documented required .env variables and confirmed gemini-2.5-flash as the only free-tier model that works. Next session: wire email_tool → summarise → tts into main.py.

@@ -33,7 +33,9 @@ def summarise(email_text: str, url: str, model: str, api_token: str = None) -> d
 
     headers = {"Authorization": f"Bearer {api_token}"} if api_token else {}
     response = requests.post(url, json=payload, headers=headers)
-    response.raise_for_status()
+
+    if not response.ok:
+        raise RuntimeError(f"API error {response.status_code}: {response.text}")
 
     # The model's reply is nested inside choices[0].message.content
     content = response.json()["choices"][0]["message"]["content"]
