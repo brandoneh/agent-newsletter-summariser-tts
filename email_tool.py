@@ -4,13 +4,10 @@ import email
 from email.header import decode_header
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
-from smolagents import tool
 
-# Load your dedicated Gmail credentials
 load_dotenv()
 
-@tool
-def fetch_unread_newsletters(max_emails: int = 5) -> str:
+def fetch_unread_newsletters(max_emails: int = 5) -> list:
     """
     Connects to the dedicated email inbox, fetches unread newsletters, 
     strips out HTML formatting, and returns the clean text.
@@ -39,7 +36,7 @@ def fetch_unread_newsletters(max_emails: int = 5) -> str:
         digests = []
         
         for eid in email_ids:
-            res, msg_data = mail.fetch(eid, "(RFC822)")
+            res, msg_data = mail.fetch(eid, "(BODY.PEEK[])")
             for response_part in msg_data:
                 if isinstance(response_part, tuple):
                     msg = email.message_from_bytes(response_part[1])
@@ -74,7 +71,7 @@ def fetch_unread_newsletters(max_emails: int = 5) -> str:
                     digests.append(f"--- SUBJECT: {subject} ---\n{body_truncated}")
                     
         mail.logout()
-        return "\n\n".join(digests)
+        return digests
         
     except Exception as e:
         return f"IMAP Connection Error: {str(e)}"

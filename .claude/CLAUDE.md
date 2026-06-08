@@ -80,6 +80,7 @@ something real and useful, not shipping a production system.
 - `summarise.py` — makes direct API calls (no agent framework) returning structured JSON
   using `newsletter_system_prompt.md`; routes to Gemini or Ollama based on env vars
 - `tts.py` — takes a text string and generates an MP3 using `edge-tts`; outputs to `tts_output/`
+- `main.py` — pipeline entry point; fetches emails, summarises each, generates MP3 per email
 - `orchestrator.py` — early experiment using SmolAgents CodeAgent; **now considered abandoned**,
   the decision was made to handle model request routing directly instead
 - `newsletter_system_prompt.md` — system prompt for the summarisation task
@@ -105,10 +106,8 @@ This allows development on the MacBook (no local GPU) using Gemini free tier cre
 
 ## What's still TODO
 
-- Wire `email_tool.py` into `summarise.py` to process real emails
-- Wire `summarise.py` output (`tts_script` field) into `tts.py` to generate audio
-- `main.py` is a placeholder only — needs to become the pipeline entry point
 - No scheduling or automation yet (currently run manually)
+- Handle truncated newsletters (web scraping step to fetch full content from URL)
 
 ## Known issues / future work
 
@@ -138,3 +137,4 @@ on meta-reasoning rather than summarisation, producing poor output with 7B model
 - 2026-06-05 | MacBook — Simplified backend switching (dropped MACHINE variable); standardised all Python strings to double quotes.
 - 2026-06-06 | Main PC — Confirmed gemini-2.5-flash produces quality output (differentiated summary and tts_script). Added TODO for TTS stage (edge-tts) and documented truncated newsletter issue.
 - 2026-06-06 | Main PC — Built tts.py using edge-tts; working and producing MP3 output. Documented required .env variables and confirmed gemini-2.5-flash as the only free-tier model that works. Next session: wire email_tool → summarise → tts into main.py.
+- 2026-06-08 | Main PC — Completed end-to-end pipeline. main.py now fetches real emails, summarises via Gemini, and generates MP3s. Removed smolagents @tool decorator from email_tool.py. Pipeline is working.
