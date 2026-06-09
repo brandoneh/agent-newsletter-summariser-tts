@@ -22,8 +22,8 @@ Your writing style for the written summary is succinct and informational.
 For the tts script, write as if you are reading it aloud on a morning news podcast with a conversational feeling
 
 # Output length
-The written summary in the "summary" field should be 3-5 sentences long.
-The script for the spoken "tts_script" should be 2-3 sentences of natural spoken prose, no bullet points, markdown or URLs.
+The written summary in the "summary" field should be 5-7 sentences long.
+The script for the spoken "tts_script" should be 4-5 sentences of natural spoken prose, no bullet points, markdown or URLs.
 
 # Output format
 Your response MUST include a JSON message with the following structure:
